@@ -76,10 +76,14 @@ public class JwtTokenProvider {
         var userId = Long.valueOf(getId(refreshToken));
         var user = userService.getById(userId);
 
+        return createJwtResponse(jwtResponse, userId, user.getUsername(), user.getRoles());
+    }
+
+    public JwtResponse createJwtResponse(JwtResponse jwtResponse, Long userId, String username, Set<Role> roles) {
         jwtResponse.setId(userId);
-        jwtResponse.setUsername(user.getUsername());
-        jwtResponse.setAccessToken(createAccessToken(userId, user.getUsername(), user.getRoles()));
-        jwtResponse.setRefreshToken(createRefreshToken(userId, user.getUsername()));
+        jwtResponse.setUsername(username);
+        jwtResponse.setAccessToken(createAccessToken(userId, username, roles));
+        jwtResponse.setRefreshToken(createRefreshToken(userId, username));
         return jwtResponse;
     }
 
