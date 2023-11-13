@@ -6,14 +6,12 @@ import com.greenblat.tasklist.repository.DataSourceConfig;
 import com.greenblat.tasklist.repository.TaskRepository;
 import com.greenblat.tasklist.repository.mapper.TaskRowMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
+//@Repository
 @RequiredArgsConstructor
 public class TaskRepositoryImpl implements TaskRepository {
 

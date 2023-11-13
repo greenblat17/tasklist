@@ -2,9 +2,11 @@ package com.greenblat.tasklist.repository;
 
 import com.greenblat.tasklist.domain.user.Role;
 import com.greenblat.tasklist.domain.user.User;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Optional;
 
+@Mapper
 public interface UserRepository {
 
     Optional<User> findById(Long id);

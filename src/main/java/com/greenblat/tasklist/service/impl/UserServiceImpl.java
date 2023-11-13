@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Set;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -43,22 +42,18 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User create(User user) {
-        userRepository.findByUsername(user.getUsername())
-                .ifPresent(e -> {
-                    throw new IllegalStateException("User already exists");
-                });
-
-        var password = user.getPassword();
-        if (!password.equals(user.getPasswordConfirmation())) {
-             throw new IllegalStateException("Password and password confirmation do not match");
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new IllegalStateException("User already exists.");
         }
-        user.setPassword(passwordEncoder.encode(password));
+        if (!user.getPassword().equals(user.getPasswordConfirmation())) {
+            throw new IllegalStateException("Password and password confirmation do not match.");
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.create(user);
 
-        var usersRole = Role.ROLE_USER;
-        userRepository.insertUserRole(user.getId(), usersRole);
-
-        var roles = Set.of(usersRole);
+        Set<Role> roles = Set.of(Role.ROLE_USER);
+        userRepository.insertUserRole(user.getId(), Role.ROLE_USER);
         user.setRoles(roles);
 
         return user;
