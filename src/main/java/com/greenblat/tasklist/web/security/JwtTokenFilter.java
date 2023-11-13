@@ -7,6 +7,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -23,13 +24,14 @@ public class JwtTokenFilter extends GenericFilterBean {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken = bearerToken.substring(7);
         }
-        if (bearerToken == null && jwtTokenProvider.validateToken(bearerToken)) {
+        if (bearerToken != null && jwtTokenProvider.validateToken(bearerToken)) {
             try {
-                var authentication = jwtTokenProvider.getAuthentication(bearerToken);
+                Authentication authentication = jwtTokenProvider.getAuthentication(bearerToken);
                 if (authentication != null) {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
-            } catch (ResourceNotFoundException ignored) {}
+            } catch (ResourceNotFoundException ignored) {
+            }
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }
