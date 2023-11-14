@@ -11,6 +11,7 @@ import com.greenblat.tasklist.web.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +31,7 @@ public class UserController {
 
     @PutMapping
     @Operation(summary = "Update user")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#dto.id)")
     public UserDto update(@Validated(OnUpdate.class) @RequestBody UserDto dto) {
         var updatedUser = userService.update(userMapper.toEntity(dto));
         return userMapper.toDto(updatedUser);
@@ -37,6 +39,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get UserDto by id")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public UserDto getById(@PathVariable Long id) {
         var user = userService.getById(id);
         return userMapper.toDto(user);
@@ -44,12 +47,14 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete user by id")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public void deleteById(@PathVariable Long id) {
         userService.delete(id);
     }
 
     @GetMapping("/{id}/tasks")
     @Operation(summary = "Get all user tasks")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#userId)")
     public List<TaskDto> getTasksByUserId(@PathVariable("id") Long userId) {
         var tasks = taskService.getAllByUserId(userId);
         return taskMapper.toDto(tasks);
@@ -57,6 +62,7 @@ public class UserController {
 
     @PostMapping("/{id}/tasks")
     @Operation(summary = "Add task to user")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#userId)")
     public TaskDto createTask(@PathVariable("id") Long userId,
                               @Validated(OnCreate.class) @RequestBody TaskDto dto) {
         var task = taskMapper.toEntity(dto);
