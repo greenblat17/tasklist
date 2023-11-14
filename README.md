@@ -39,26 +39,6 @@ To run this project, you will need to add the following environment variables to
 - `POSTGRES_SCHEMA` - name of Postgresql schema
 - `JWT_SECRET` - secret string for JWT tokens
 
-## Run Locally
-
-Clone the project
-
-```bash
-  git clone https://github.com/greenblat17/tasklist.git
-```
-
-Go to the project directory
-
-```bash
-  cd tasklist
-```
-
-Set environment variables and start the server
-
-```bash
-  mvn spring-boot:run
-```
-
 ## API Reference
 
 ### Authentication API
