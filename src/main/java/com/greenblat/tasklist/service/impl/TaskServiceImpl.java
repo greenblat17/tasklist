@@ -6,31 +6,37 @@ import com.greenblat.tasklist.domain.task.Task;
 import com.greenblat.tasklist.repository.TaskRepository;
 import com.greenblat.tasklist.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
 
     @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "TaskService::getById", key = "#id")
     public Task getById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Task> getAllByUserId(Long userId) {
         return taskRepository.findAllByUserId(userId);
     }
 
     @Override
     @Transactional
+    @CachePut(value = "TaskService::getById", key = "#task.id")
     public Task update(Task task) {
         if (task.getStatus() == null) {
             task.setStatus(Status.TODO);
@@ -41,6 +47,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Cacheable(value = "TaskService::getById", key = "#task.id")
     public Task create(Task task, Long userId) {
         task.setStatus(Status.TODO);
         taskRepository.create(task);
@@ -49,6 +56,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Transactional
+    @CacheEvict(value = "TaskService::getById", key = "#id")
     public void delete(Long id) {
         taskRepository.delete(id);
     }
