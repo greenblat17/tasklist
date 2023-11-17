@@ -7,6 +7,8 @@ services:
     container_name: tasklist
     depends_on:
       - db
+      - redis
+      - minio
     env_file:
       - .env
     ports:
@@ -18,10 +20,12 @@ services:
     environment:
       - POSTGRES_USER=${POSTGRES_USERNAME}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DATABASE}
+      - POSTGRES_DB=tasklist
     volumes:
       - ./src/main/resources/db-init:/docker-entrypoint-initdb.d
       - db-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
 
   redis:
     image: redis:7.2-rc-alpine
@@ -33,8 +37,24 @@ services:
       - cache:/data
     command: redis-server --save 20 1 --loglevel warning --requirepass  ${REDIS_PASSWORD}
 
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY}
+    command: server ~/minio --console-address :9090
+    ports:
+      - '9090:9090'
+      - '9000:9000'
+    volumes:
+      - minio-data:/minio
+
+
 volumes:
   cache:
     driver: local
   db-data:
+    driver: local
+  minio-data:
     driver: local
