@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     })
     public User update(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.update(user);
+        userRepository.save(user);
         return user;
     }
 
@@ -66,13 +66,11 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userRepository.create(user);
 
         Set<Role> roles = Set.of(Role.ROLE_USER);
-        userRepository.insertUserRole(user.getId(), Role.ROLE_USER);
         user.setRoles(roles);
 
-        return user;
+        return userRepository.save(user);
     }
 
     @Override
@@ -86,6 +84,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(value = "UserService::getById", key = "#id")
     public void delete(Long id) {
-        userRepository.delete(id);
+        userRepository.findById(id)
+                .ifPresentOrElse(
+                        (task) -> userRepository.deleteById(id),
+                        () -> {
+                            throw new ResourceNotFoundException("User not found");
+                        }
+
+                );
     }
 }
