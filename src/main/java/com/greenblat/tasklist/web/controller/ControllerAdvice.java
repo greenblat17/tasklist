@@ -1,9 +1,6 @@
 package com.greenblat.tasklist.web.controller;
 
-import com.greenblat.tasklist.domain.exception.AccessDeniedException;
-import com.greenblat.tasklist.domain.exception.ExceptionBody;
-import com.greenblat.tasklist.domain.exception.ResourceMappingException;
-import com.greenblat.tasklist.domain.exception.ResourceNotFoundException;
+import com.greenblat.tasklist.domain.exception.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -74,6 +71,18 @@ public class ControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionBody handleAuthentication(AuthenticationException e) {
         return new ExceptionBody("Authentication failed");
+    }
+
+    @ExceptionHandler(ImageUploadException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionBody handleImageUpload(ImageUploadException e) {
+        return new ExceptionBody(e.getMessage());
+    }
+
+    @ExceptionHandler(BucketException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionBody handleBucket(BucketException e) {
+        return new ExceptionBody(e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

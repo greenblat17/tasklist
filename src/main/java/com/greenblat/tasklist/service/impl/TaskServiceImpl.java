@@ -3,7 +3,9 @@ package com.greenblat.tasklist.service.impl;
 import com.greenblat.tasklist.domain.exception.ResourceNotFoundException;
 import com.greenblat.tasklist.domain.task.Status;
 import com.greenblat.tasklist.domain.task.Task;
+import com.greenblat.tasklist.domain.task.TaskImage;
 import com.greenblat.tasklist.repository.TaskRepository;
+import com.greenblat.tasklist.service.ImageService;
 import com.greenblat.tasklist.service.TaskService;
 import com.greenblat.tasklist.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserService userService;
+    private final ImageService imageService;
 
     @Override
     @Transactional(readOnly = true)
@@ -72,5 +75,16 @@ public class TaskServiceImpl implements TaskService {
                         }
 
                 );
+    }
+
+    @Override
+    @Transactional
+    @CacheEvict(value = "TaskService::getById", key = "#id")
+    public void uploadImage(Long id, TaskImage image) {
+        String filename = imageService.upload(image);
+
+        var task = getById(id);
+        task.getImages().add(filename);
+        taskRepository.save(task);
     }
 }

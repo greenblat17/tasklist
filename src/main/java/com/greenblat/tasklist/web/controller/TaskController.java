@@ -1,8 +1,11 @@
 package com.greenblat.tasklist.web.controller;
 
+import com.greenblat.tasklist.domain.task.TaskImage;
 import com.greenblat.tasklist.service.TaskService;
 import com.greenblat.tasklist.web.dto.task.TaskDto;
+import com.greenblat.tasklist.web.dto.task.TaskImageDto;
 import com.greenblat.tasklist.web.dto.validation.OnUpdate;
+import com.greenblat.tasklist.web.mapper.TaskImageMapper;
 import com.greenblat.tasklist.web.mapper.TaskMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,10 +23,11 @@ public class TaskController {
 
     private final TaskService taskService;
     private final TaskMapper taskMapper;
+    private final TaskImageMapper taskImageMapper;
 
     @PutMapping
     @Operation(summary = "Update task")
-    @PreAuthorize("canAccessTask(#dto.id)")
+    @PreAuthorize("@customSecurityExpression.canAccessTask(#dto.id)")
     public TaskDto update(@Validated(OnUpdate.class) @RequestBody TaskDto dto) {
         var updatedTask = taskService.update(taskMapper.toEntity(dto));
         return taskMapper.toDto(updatedTask);
@@ -31,7 +35,7 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Ger TaskDto by id")
-    @PreAuthorize("canAccessTask(#id)")
+    @PreAuthorize("@customSecurityExpression.canAccessTask(#id)")
     public TaskDto getById(@PathVariable Long id) {
         var task = taskService.getById(id);
         return taskMapper.toDto(task);
@@ -39,8 +43,17 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete task")
-    @PreAuthorize("canAccessTask(#id)")
+    @PreAuthorize("@customSecurityExpression.canAccessTask(#id)")
     public void deleteById(@PathVariable Long id) {
         taskService.delete(id);
+    }
+
+    @PostMapping("/{id}/image")
+    @Operation(summary = "Upload image to task")
+    @PreAuthorize("@customSecurityExpression.canAccessTask(#id)")
+    public void uploadImage(@PathVariable Long id,
+                            @Validated @ModelAttribute TaskImageDto imageDto) {
+        TaskImage image = taskImageMapper.toEntity(imageDto);
+        taskService.uploadImage(id, image);
     }
 }
