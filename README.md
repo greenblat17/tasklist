@@ -8,10 +8,10 @@ You can access Swagger and see all available endpoints by visiting http://localh
 ## Tech Stack
 
 - Java 19
-- Spring Boot, Spring Security
-- JDBC
-- MyBatis
+- Spring Boot
 - PostgreSQL
+- MinIO
+- Redis
 - Swagger
 - Docker
 
@@ -37,7 +37,14 @@ To run this project, you will need to add the following environment variables to
 - `POSTGRES_PASSWORD` - password for Postgresql database
 - `POSTGRES_DATABASE` - name of Postgresql database
 - `POSTGRES_SCHEMA` - name of Postgresql schema
+- `REDIS_HOST` - host of Redis instance
+- `REDIS_PASSWORD` - password for Redis
 - `JWT_SECRET` - secret string for JWT tokens
+- `MINIO_BUCKET` - name of bucket for MinIO
+- `MINIO_URL` - URL of MinIO instance
+- `MINIO_ACCESS_KEY` - access key of MinIO
+- `MINIO_SECRET_KEY` - secret key of MinIO
+
 
 ## API Reference
 
@@ -105,7 +112,7 @@ To run this project, you will need to add the following environment variables to
   GET /api/v1/users/{id}
 ```
 
-| Request Body | Type  | Description           |
+| Param | Type  | Description           |
 |:-------------|:------|:----------------------|
 | `id`         | `int` | **Required**. User ID |
 
@@ -115,7 +122,7 @@ To run this project, you will need to add the following environment variables to
   DELETE /api/v1/users/{id}
 ```
 
-| Request Body | Type  | Description           |
+| Param| Type  | Description           |
 |:-------------|:------|:----------------------|
 | `id`         | `int` | **Required**. User ID |
 
@@ -125,7 +132,7 @@ To run this project, you will need to add the following environment variables to
   GET /api/v1/users/{id}/tasks
 ```
 
-| Request Body | Type  | Description           |
+| Param | Type  | Description           |
 |:-------------|:------|:----------------------|
 | `id`         | `int` | **Required**. User ID |
 
@@ -145,7 +152,7 @@ To run this project, you will need to add the following environment variables to
 }
 ```
 
-| Request Body | Type  | Description           |
+| Param | Type  | Description           |
 |:-------------|:------|:----------------------|
 | `id`         | `int` | **Required**. User ID |
 
@@ -172,7 +179,7 @@ To run this project, you will need to add the following environment variables to
   GET /api/v1/tasks/{id}
 ```
 
-| Request Body | Type  | Description           |
+| Param | Type  | Description           |
 |:-------------|:------|:----------------------|
 | `id`         | `int` | **Required**. Task ID |
 
@@ -182,8 +189,20 @@ To run this project, you will need to add the following environment variables to
   DELETE /api/v1/tasks/{id}
 ```
 
-| Request Body | Type  | Description           |
-|:-------------|:------|:----------------------|
-| `id`         | `int` | **Required**. Task ID |
+| Param | Type  | Description           |
+|:------|:------|:----------------------|
+| `id`  | `int` | **Required**. Task ID |
 
+#### Upload image
 
+```http
+  DELETE /api/v1/tasks/{id}/upload
+```
+
+| Param | Type  | Description           |
+|:------|:------|:----------------------|
+| `id`  | `int` | **Required**. Task ID |
+
+| Request Body | Type            | Description                  |
+|:-------------|:----------------|:-----------------------------|
+| `file`       | `MultipartFile` | **Required**. File to upload |
