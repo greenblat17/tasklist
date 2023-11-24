@@ -1,6 +1,5 @@
 package com.greenblat.tasklist.repository;
 
-import com.greenblat.tasklist.domain.user.Role;
 import com.greenblat.tasklist.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,5 +21,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
                     task_id = :taskId)
             """, nativeQuery = true)
     boolean isTaskOwner(@Param("userId") Long userId, @Param("taskId") Long taskId);
+
+    @Query(value = """
+            SELECT u.id as id,
+            u.name as name,
+            u.username as username,
+            u.password as password
+            FROM users_tasks ut
+            JOIN users u ON ut.user_id = u.id
+            WHERE ut.task_id = :taskId
+            """, nativeQuery = true)
+    Optional<User> findTaskAuthor(@Param("taskId") Long taskId);
 
 }

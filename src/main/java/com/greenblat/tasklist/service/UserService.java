@@ -8,6 +8,8 @@ public interface UserService {
 
     User getByUsername(String username);
 
+    User getTaskAuthor(Long taskId);
+
     User update(User user);
 
     User create(User user);
