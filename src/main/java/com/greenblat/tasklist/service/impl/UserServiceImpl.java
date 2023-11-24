@@ -1,9 +1,11 @@
 package com.greenblat.tasklist.service.impl;
 
+import com.greenblat.tasklist.domain.MailType;
 import com.greenblat.tasklist.domain.exception.ResourceNotFoundException;
 import com.greenblat.tasklist.domain.user.Role;
 import com.greenblat.tasklist.domain.user.User;
 import com.greenblat.tasklist.repository.UserRepository;
+import com.greenblat.tasklist.service.MailService;
 import com.greenblat.tasklist.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Properties;
 import java.util.Set;
 
 @Service
@@ -22,6 +25,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,6 +41,15 @@ public class UserServiceImpl implements UserService {
     public User getByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Cacheable(value = "UserService::getTaskAuthor", key = "#taskId")
+    public User getTaskAuthor(final Long taskId) {
+        return userRepository.findTaskAuthor(taskId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found."));
     }
 
     @Override
@@ -70,6 +83,7 @@ public class UserServiceImpl implements UserService {
         Set<Role> roles = Set.of(Role.ROLE_USER);
         user.setRoles(roles);
 
+        mailService.sendEmail(user, MailType.REGISTRATION, new Properties());
         return userRepository.save(user);
     }
 
